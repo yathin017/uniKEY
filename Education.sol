@@ -27,21 +27,23 @@ contract Education{
     struct courseDetails{
         string courseName;
         uint courseGrade;
+        uint courseCredits;
         string courseResult;
     }
 
     mapping(address=>collegeAdminDetails) private mapCollegeAdminDetails;
     mapping(address=>interviewerDetails) private mapInterviewerDetails;
     mapping(address=>studentDetails) private mapStudentDetails;
+    mapping(address=>uint) private mapStudentCredits;
     mapping(address=>mapping(uint=>courseDetails[])) private mapStudentCourse;
 
     modifier onlyDean(){
-        require(msg.sender==Dean,"Only owner can calll this function");
+        require(msg.sender==Dean,"Only Dean can call this function");
         _;
     }
 
     modifier onlyCollegeAdmins(){
-        require(mapCollegeAdminDetails[msg.sender].verify==true,"Only owner can calll this function");
+        require(msg.sender==Dean || mapCollegeAdminDetails[msg.sender].verify==true,"Only Dean and Admins can call this function");
         _;
     }
 
@@ -64,7 +66,7 @@ contract Education{
 
     // College Admin Details
     // Set
-    function setCollegeAdmin(address _collegeAdmin, string memory _name, uint _id) public onlyCollegeAdmins onlyDean{
+    function setCollegeAdmin(address _collegeAdmin, string memory _name, uint _id) public onlyCollegeAdmins{
         mapCollegeAdminDetails[_collegeAdmin] = collegeAdminDetails(_name, _id, true);
     }
     // Get
@@ -78,7 +80,7 @@ contract Education{
 
     // Interviewer Details
     // Set
-    function setInterviewer(address _interviewer, string memory _name, uint _id, string memory _companyName) public onlyCollegeAdmins onlyDean{
+    function setInterviewer(address _interviewer, string memory _name, uint _id, string memory _companyName) public onlyCollegeAdmins{
         mapInterviewerDetails[_interviewer] = interviewerDetails(_name, _id, _companyName, true);
     }
     // Get
@@ -92,7 +94,7 @@ contract Education{
 
     // Student Details
     // Set
-    function setStudent(address _student, string memory _name, uint _id, string memory _dept) public onlyCollegeAdmins onlyDean{
+    function setStudent(address _student, string memory _name, uint _id, string memory _dept) public onlyCollegeAdmins{
         mapStudentDetails[_student] = studentDetails(_name, _id, _dept, true);
     }
     // Get
@@ -106,12 +108,14 @@ contract Education{
 
     // Course and Grades
     // Set
-    function addCompletedCourses(address _student, uint _sem, string memory _courseName, uint _courseGrade, string memory _courseResult) public onlyCollegeAdmins{
+    function addCompletedCourses(address _student, uint _sem, string memory _courseName, uint _courseGrade, uint _courseCredits, string memory _courseResult) public onlyCollegeAdmins{
         mapStudentCourse[_student][_sem].push(courseDetails({
             courseName:_courseName,
             courseGrade:_courseGrade,
+            courseCredits:_courseCredits,
             courseResult:_courseResult
         }));
+        mapStudentCredits[_student]+=_courseCredits;
     }
     // Get
     function viewCompletedCourses(address _student) public view restrictedAccess returns(courseDetails[] memory){
@@ -128,6 +132,7 @@ contract Education{
 
     // Degree
     function viewDegree(address _student) public view returns(address, string memory, uint, string memory){
+        require(mapStudentCredits[_student]>=200);
         return(_student, mapStudentDetails[_student].name, mapStudentDetails[_student].id, mapStudentDetails[_student].dept);
     }
 }
