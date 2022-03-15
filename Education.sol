@@ -118,15 +118,12 @@ contract Education{
         mapStudentCredits[_student]+=_courseCredits;
     }
     // Get
-    function viewCompletedCourses(address _student) public view restrictedAccess returns(courseDetails[] memory){
-        uint _semNo;
-        courseDetails[] memory sem = new courseDetails[](mapStudentCourse[_student][_semNo].length);
+    function viewCompletedCourses(address _student, uint _sem) public view restrictedAccess returns(courseDetails[] memory){
+        courseDetails[] memory sem = new courseDetails[](mapStudentCourse[_student][_sem].length);
         
-        for(_semNo=1; _semNo<mapStudentCourse[_student][_semNo].length; _semNo++){
-            for(uint index=0; index<mapStudentCourse[_student][_semNo].length; index++){
-                sem[index] = mapStudentCourse[_student][_semNo][index];
+            for(uint index=0; index<mapStudentCourse[_student][_sem].length; index++){
+                sem[index] = mapStudentCourse[_student][_sem][index];
             }
-        }
         return sem;
     }
 
@@ -135,4 +132,5 @@ contract Education{
         require(mapStudentCredits[_student]>=200);
         return(_student, mapStudentDetails[_student].name, mapStudentDetails[_student].id, mapStudentDetails[_student].dept);
     }
+    
 }
