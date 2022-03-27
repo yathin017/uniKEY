@@ -6,6 +6,9 @@ contract Identity2{
 
     enum Vehicle{Two, Four}
     enum EntityPower{A, B}
+    enum PassportType{Regular, Official, Diplomatic}
+
+    uint[] fingerprint;
 
     struct BirthCertificate{
         string name;
@@ -49,6 +52,13 @@ contract Identity2{
         bool verify;
     }
 
+    struct Passport{
+        string passportNumber;
+        PassportType passportType;
+        uint validity;
+        bool verify;
+    }
+
     struct ContactDetails{
         uint contactNumber;
         string homeAddress;
@@ -73,7 +83,9 @@ contract Identity2{
     mapping(address=>PAN) private mapPAN;
     mapping(address=>DrivingLicense[2]) private mapDrivingLicense;
     mapping(address=>VoterID) private mapVoterID;
+    mapping(address=>Passport) private mapPassport;
     mapping(address=>ContactDetails) private mapContactDetails;
+    mapping(address=>uint) private mapFingerprint;
     mapping(address=>GovernmentServant) public mapGovernmentServant;
 
     // Modifiers
@@ -152,6 +164,11 @@ contract Identity2{
         mapVoterID[_citizenID] = VoterID(_referenceNumber, block.timestamp, msg.sender, true);
     }
 
+    function setPassport(address _citizenID, string memory _passportNumber, PassportType _passportType) public onlyGovernment{
+        require(mapAadhar[_citizenID].verify==true,"Must have Aadhar");
+        mapPassport[_citizenID] = Passport(_passportNumber, _passportType, block.timestamp+315360000315360000, true);
+    }
+
     function setContactDetails(address _citizenID, uint _contactNumber, string memory _homeAddress, uint _pinCode) public onlyGovernment{
         require(mapBirthCertificate[_citizenID].verify==true,"Must have Birth Certificate");
         mapContactDetails[_citizenID] = ContactDetails(_contactNumber, _homeAddress, _pinCode, block.timestamp, msg.sender, true);
@@ -176,20 +193,31 @@ contract Identity2{
         return(mapPAN[_citizenID].PAN, mapPAN[_citizenID].issueDate, mapPAN[_citizenID].issuedBy);
     }
 
-    function viewDrivingLicense(address _citizenID) public view returns(DrivingLicense[] memory){
-        require(mapBirthCertificate[_citizenID].verify==true,"Not a Citizen");
-        require(Admin==msg.sender || _citizenID==msg.sender || uint((mapGovernmentServant[msg.sender].power))==0,"You must be a Government Entity or Owner of _citizenID");
-        DrivingLicense[] memory data = new DrivingLicense[](mapDrivingLicense[_citizenID].length);
-        for(uint index=0; index<mapDrivingLicense[_citizenID].length; index++){
-            data[index] = mapDrivingLicense[_citizenID][index];
-        }
-        return(data);
-    }
+    // function viewDrivingLicense(address _citizenID) public view returns(DrivingLicense[] memory){
+    //     require(mapBirthCertificate[_citizenID].verify==true,"Not a Citizen");
+    //     require(Admin==msg.sender || _citizenID==msg.sender || uint((mapGovernmentServant[msg.sender].power))==0,"You must be a Government Entity or Owner of _citizenID");
+    //     DrivingLicense[] memory data = new DrivingLicense[](mapDrivingLicense[_citizenID].length);
+    //     for(uint index=0; index<mapDrivingLicense[_citizenID].length; index++){
+    //         data[index] = mapDrivingLicense[_citizenID][index];
+    //     }
+    //     return(data);
+    // }
 
     function viewVoterID(address _citizenID) public view returns(string memory, uint, address){
         require(mapBirthCertificate[_citizenID].verify==true,"Not a Citizen");
         require(Admin==msg.sender || _citizenID==msg.sender || uint((mapGovernmentServant[msg.sender].power))==0,"You must be a Government Entity or Owner of _citizenID");
         return(mapVoterID[_citizenID].referenceNumber, mapVoterID[_citizenID].issueDate, mapVoterID[_citizenID].issuedBy);
+    }
+
+    function viewPassport(address _citizenID) public view returns(string memory, PassportType, uint, bool){
+        require(mapBirthCertificate[_citizenID].verify==true,"Not a Citizen");
+        require(Admin==msg.sender || _citizenID==msg.sender || uint((mapGovernmentServant[msg.sender].power))==0,"You must be a Government Entity or Owner of _citizenID");
+        if(mapPassport[_citizenID].validity<block.timestamp){
+            return(mapPassport[_citizenID].passportNumber, mapPassport[_citizenID].passportType, mapPassport[_citizenID].validity, mapPassport[_citizenID].verify);
+        }
+        else{
+            return(mapPassport[_citizenID].passportNumber, mapPassport[_citizenID].passportType, mapPassport[_citizenID].validity, false);
+        }
     }
 
     function viewContactDetails(address _citizenID) public view returns(uint, string memory, uint, uint, address){
@@ -211,15 +239,26 @@ contract Identity2{
         return(mapPAN[_citizenID].verify);
     }
 
-    function verify2WheelerLicense(address _citizenID) public view returns(bool){
-        return(mapDrivingLicense[_citizenID][0].verify);
+    function verify2WheelerLicense(address _citizenID) public view returns(uint, address, bool){
+        return(mapDrivingLicense[_citizenID][0].issueDate, mapDrivingLicense[_citizenID][0].issuedBy, mapDrivingLicense[_citizenID][0].verify);
     }
 
-    function verify4WheelerLicense(address _citizenID) public view returns(bool){
-        return(mapDrivingLicense[_citizenID][1].verify);
+    function verify4WheelerLicense(address _citizenID) public view returns(uint, address, bool){
+        return(mapDrivingLicense[_citizenID][1].issueDate, mapDrivingLicense[_citizenID][1].issuedBy, mapDrivingLicense[_citizenID][1].verify);
     }
 
     function verifyVoterID(address _citizenID) public view returns(bool){
         return(mapVoterID[_citizenID].verify);
+    }
+
+    function verifyPassport(address _citizenID) public view returns(bool){
+        require(mapBirthCertificate[_citizenID].verify==true,"Not a Citizen");
+        require(Admin==msg.sender || _citizenID==msg.sender || uint((mapGovernmentServant[msg.sender].power))==0,"You must be a Government Entity or Owner of _citizenID");
+        if(mapPassport[_citizenID].validity<block.timestamp){
+            return(mapPassport[_citizenID].verify);
+        }
+        else{
+            return(false);
+        }
     }
 }
