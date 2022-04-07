@@ -2,10 +2,8 @@
 pragma solidity ^0.8.4;
 
 contract GovernmentAdmin {
-    address public Admin;
 
     struct AdminData {
-        string name;
         uint256 issueDate;
         address issuedBy;
         bool verify;
@@ -13,19 +11,17 @@ contract GovernmentAdmin {
 
     mapping(address => AdminData) public mapAdminData;
 
-    constructor(string memory _name) {
+    constructor() {
         mapAdminData[msg.sender] = AdminData(
-            _name,
             block.timestamp,
             msg.sender,
             true
         );
     }
 
-    function addAdmin(string memory _name) public {
+    function addAdmin(address _Admin) public{
         require(mapAdminData[msg.sender].verify == true);
-        mapAdminData[msg.sender] = AdminData(
-            _name,
+        mapAdminData[_Admin] = AdminData(
             block.timestamp,
             msg.sender,
             true
