@@ -3,7 +3,8 @@ pragma solidity ^0.8.4;
 
 import "./GovernmentAdmin.sol";
 
-abstract contract Identity is GovernmentAdmin {
+contract Identity is GovernmentAdmin {
+
     enum EntityPower {
         A,
         B
@@ -229,4 +230,5 @@ abstract contract Identity is GovernmentAdmin {
         }
         delete accessAddress;
     }
+    
 }
