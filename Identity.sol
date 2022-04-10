@@ -166,7 +166,7 @@ contract Identity2{
 
     function setPassport(address _citizenID, string memory _passportNumber, PassportType _passportType) public onlyGovernment{
         require(mapAadhar[_citizenID].verify==true,"Must have Aadhar");
-        mapPassport[_citizenID] = Passport(_passportNumber, _passportType, block.timestamp+315360000315360000, true);
+        mapPassport[_citizenID] = Passport(_passportNumber, _passportType, block.timestamp+315360000, true);
     }
 
     function setContactDetails(address _citizenID, uint _contactNumber, string memory _homeAddress, uint _pinCode) public onlyGovernment{
