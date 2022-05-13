@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: NONE
 pragma solidity ^0.8.4;
 
 contract uniKEY {
@@ -8,7 +8,7 @@ contract uniKEY {
         string name;
         string adminNumber;
         string designation;
-        uint256 issueDate;
+        uint issueDate;
         address issuedBy;
         bool verify;
     }
@@ -18,14 +18,14 @@ contract uniKEY {
     struct BirthCertificate {
         string name;
         string gender;
-        uint256 DOB;
+        uint DOB;
         address FatherID;
         address MotherID;
         string Country;
-        uint256 issueDate;
+        uint issueDate;
         address issuedBy;
         bool verify;
-        uint256 password;
+        uint password;
     }
 
     mapping(address => BirthCertificate) internal mapBirthCertificate;
@@ -33,7 +33,7 @@ contract uniKEY {
     constructor(
         string memory _name,
         string memory _gender,
-        uint256 _DOB,
+        uint _DOB,
         address _FatherID,
         address _MotherID,
         string memory _country,
@@ -60,7 +60,7 @@ contract uniKEY {
             block.timestamp,
             msg.sender,
             true,
-            uint256(sha256(abi.encodePacked(_name, _DOB, _password)))
+            uint(sha256(abi.encodePacked(_name, _DOB, _password)))
         );
     }
 
@@ -93,8 +93,9 @@ contract uniKEY {
             string memory,
             string memory,
             string memory,
-            uint256,
-            address
+            uint,
+            address,
+            bool
         )
     {
         return (
@@ -102,12 +103,9 @@ contract uniKEY {
             mapAdminData[_Admin].adminNumber,
             mapAdminData[_Admin].designation,
             mapAdminData[_Admin].issueDate,
-            mapAdminData[_Admin].issuedBy
+            mapAdminData[_Admin].issuedBy,
+            mapAdminData[_Admin].verify
         );
-    }
-
-    function verifyAdmin(address _Admin) public view returns (bool) {
-        return (mapAdminData[_Admin].verify);
     }
 
     function loginAdmin(address _Admin) external view returns (bool) {
@@ -129,7 +127,7 @@ contract uniKEY {
         string adminNumber;
         string designation;
         EntityPower power;
-        uint256 issueDate;
+        uint issueDate;
         address issuedBy;
         bool verify;
     }
@@ -196,12 +194,12 @@ contract uniKEY {
             string memory,
             string memory,
             string memory,
-            uint256,
+            uint,
             address,
             bool
         )
     {
-        if (uint256(mapGovernmentWorker[_governmentID].power) == 0) {
+        if (uint(mapGovernmentWorker[_governmentID].power) == 0) {
             return (
                 mapGovernmentWorker[_governmentID].name,
                 mapGovernmentWorker[_governmentID].adminNumber,
@@ -211,7 +209,7 @@ contract uniKEY {
                 mapGovernmentWorker[_governmentID].issuedBy,
                 mapGovernmentWorker[_governmentID].verify
             );
-        } else if (uint256(mapGovernmentWorker[_governmentID].power) == 1) {
+        } else if (uint(mapGovernmentWorker[_governmentID].power) == 1) {
             return (
                 mapGovernmentWorker[_governmentID].name,
                 mapGovernmentWorker[_governmentID].adminNumber,
@@ -251,7 +249,7 @@ contract uniKEY {
         address _citizenID,
         string memory _name,
         string memory _gender,
-        uint256 _DOB,
+        uint _DOB,
         address _FatherID,
         address _MotherID,
         string memory _country,
@@ -260,7 +258,7 @@ contract uniKEY {
         require(mapBirthCertificate[_citizenID].verify == false);
         require(
             mapAdminData[msg.sender].verify == true ||
-                uint256(mapGovernmentWorker[msg.sender].power) == 0
+                uint(mapGovernmentWorker[msg.sender].power) == 0
         );
         mapBirthCertificate[_citizenID] = BirthCertificate(
             _name,
@@ -272,7 +270,7 @@ contract uniKEY {
             block.timestamp,
             msg.sender,
             true,
-            uint256(sha256(abi.encodePacked(_name, _DOB, _password)))
+            uint(sha256(abi.encodePacked(_name, _DOB, _password)))
         );
     }
 
@@ -280,14 +278,14 @@ contract uniKEY {
         require(mapBirthCertificate[_citizenID].verify == true);
         require(
             mapAdminData[msg.sender].verify == true ||
-                uint256(mapGovernmentWorker[msg.sender].power) == 0
+                uint(mapGovernmentWorker[msg.sender].power) == 0
         );
         mapBirthCertificate[_citizenID].verify = false;
     }
 
     function changePassword(string memory _newPassword) external {
         require(mapBirthCertificate[msg.sender].verify == true);
-        mapBirthCertificate[msg.sender].password = uint256(
+        mapBirthCertificate[msg.sender].password = uint(
             sha256(
                 abi.encodePacked(
                     mapBirthCertificate[msg.sender].name,
@@ -304,10 +302,10 @@ contract uniKEY {
         returns (
             string memory,
             string memory,
-            uint256,
+            uint,
             address,
             address,
-            uint256,
+            uint,
             address
         )
     {
@@ -336,7 +334,7 @@ contract uniKEY {
         returns (bool)
     {
         return (mapBirthCertificate[_citizenID].password ==
-            uint256(
+            uint(
                 sha256(
                     abi.encodePacked(
                         mapBirthCertificate[_citizenID].name,
@@ -362,7 +360,7 @@ contract uniKEY {
     // Contact.sol
 
     struct ContactData {
-        uint256 issueDate;
+        uint issueDate;
         address issuedBy;
         bool verify;
     }
@@ -395,7 +393,7 @@ contract uniKEY {
         external
         view
         returns (
-            uint256,
+            uint,
             address,
             bool
         )
@@ -423,19 +421,19 @@ contract uniKEY {
 
     struct Face {
         string hash;
-        uint256 issueDate;
+        uint issueDate;
         address issuedBy;
         bool verify;
     }
 
     struct Iris {
-        uint256 issueDate;
+        uint issueDate;
         address issuedBy;
         bool verify;
     }
 
     struct Fingerprint {
-        uint256 issueDate;
+        uint issueDate;
         address issuedBy;
         bool verify;
     }
@@ -508,7 +506,7 @@ contract uniKEY {
     // Aadhar.sol
 
     struct AadharData {
-        uint256 issueDate;
+        uint issueDate;
         address issuedBy;
         bool verify;
     }
@@ -543,7 +541,7 @@ contract uniKEY {
         external
         view
         returns (
-            uint256,
+            uint,
             address,
             bool
         )
@@ -569,7 +567,7 @@ contract uniKEY {
     // PAN.sol
 
     struct PANData {
-        uint256 issueDate;
+        uint issueDate;
         address issuedBy;
         bool verify;
     }
@@ -602,7 +600,7 @@ contract uniKEY {
         external
         view
         returns (
-            uint256,
+            uint,
             address,
             bool
         )
@@ -634,7 +632,7 @@ contract uniKEY {
 
     struct DrivingLicenseData {
         Vehicle wheeler;
-        uint256 issueDate;
+        uint issueDate;
         address issuedBy;
         bool verify;
     }
@@ -708,7 +706,7 @@ contract uniKEY {
             mapDrivingLicenseData[_citizenID].length
         );
         for (
-            uint256 index = 0;
+            uint index = 0;
             index < mapDrivingLicenseData[_citizenID].length;
             index++
         ) {
@@ -721,7 +719,7 @@ contract uniKEY {
         external
         view
         returns (
-            uint256,
+            uint,
             address,
             bool
         )
@@ -737,7 +735,7 @@ contract uniKEY {
         external
         view
         returns (
-            uint256,
+            uint,
             address,
             bool
         )
@@ -768,7 +766,7 @@ contract uniKEY {
     // Voter.sol
 
     struct VoterData {
-        uint256 issueDate;
+        uint issueDate;
         address issuedBy;
         bool verify;
     }
@@ -800,7 +798,7 @@ contract uniKEY {
         external
         view
         returns (
-            uint256,
+            uint,
             address,
             bool
         )
@@ -826,26 +824,26 @@ contract uniKEY {
 
     struct PassportData {
         PassportType passportType;
-        uint256 issueDate;
+        uint issueDate;
         address issuedBy;
         bool verify;
     }
 
     struct VisaOfficer {
-        uint256 OfficerID;
-        uint256 issueDate;
+        uint OfficerID;
+        uint issueDate;
         address issuedBy;
         bool verify;
     }
 
     struct Visa {
         string countryName;
-        uint256 countryID;
+        uint countryID;
         string visaType;
         string description;
-        uint256 issueDate;
+        uint issueDate;
         address issuedBy;
-        uint256 expiry;
+        uint expiry;
         bool verify;
     }
 
@@ -874,7 +872,7 @@ contract uniKEY {
         );
     }
 
-    function addVisaOfficer(address _officerAddress, uint256 _officerID)
+    function addVisaOfficer(address _officerAddress, uint _officerID)
         external
     {
         require(verifyBirthCertificate(_officerAddress) == true);
@@ -897,10 +895,10 @@ contract uniKEY {
     function addVisa(
         address _citizenID,
         string memory _countryName,
-        uint256 _countryID,
+        uint _countryID,
         string memory _visaType,
         string memory _description,
-        uint256 _expiry
+        uint _expiry
     ) external {
         require(mapVisaOfficer[msg.sender].verify == true);
         mapVisa[_citizenID].push(
@@ -933,7 +931,7 @@ contract uniKEY {
         mapVisaOfficer[_officerAddress].verify = false;
     }
 
-    function removeVisa(address _citizenID, uint256 _index) external {
+    function removeVisa(address _citizenID, uint _index) external {
         require(
             mapAdminData[msg.sender].verify == true ||
                 verifyGovernmentWorker(msg.sender) == true ||
@@ -947,26 +945,26 @@ contract uniKEY {
         view
         returns (
             string memory,
-            uint256,
+            uint,
             address,
             bool
         )
     {
-        if (uint256(mapPassportData[_citizenID].passportType) == 0) {
+        if (uint(mapPassportData[_citizenID].passportType) == 0) {
             return (
                 "Regular",
                 mapPassportData[_citizenID].issueDate,
                 mapPassportData[_citizenID].issuedBy,
                 verifyPassport(_citizenID)
             );
-        } else if (uint256(mapPassportData[_citizenID].passportType) == 1) {
+        } else if (uint(mapPassportData[_citizenID].passportType) == 1) {
             return (
                 "Official",
                 mapPassportData[_citizenID].issueDate,
                 mapPassportData[_citizenID].issuedBy,
                 verifyPassport(_citizenID)
             );
-        } else if (uint256(mapPassportData[_citizenID].passportType) == 2) {
+        } else if (uint(mapPassportData[_citizenID].passportType) == 2) {
             return (
                 "Diplomatic",
                 mapPassportData[_citizenID].issueDate,
@@ -982,8 +980,8 @@ contract uniKEY {
         external
         view
         returns (
-            uint256,
-            uint256,
+            uint,
+            uint,
             address,
             bool
         )
@@ -1002,7 +1000,7 @@ contract uniKEY {
         returns (Visa[] memory)
     {
         Visa[] memory data = new Visa[](mapVisa[_citizenID].length);
-        for (uint256 index = 0; index < mapVisa[_citizenID].length; index++) {
+        for (uint index = 0; index < mapVisa[_citizenID].length; index++) {
             data[index] = mapVisa[_citizenID][index];
         }
         return (data);
@@ -1026,7 +1024,7 @@ contract uniKEY {
         return (mapVisaOfficer[_officerAddress].verify);
     }
 
-    function verifyVisa(address _citizenID, uint256 _index)
+    function verifyVisa(address _citizenID, uint _index)
         public
         view
         returns (bool)
@@ -1050,14 +1048,14 @@ contract uniKEY {
 
     struct CasteData {
         CasteType casteType;
-        uint256 issueDate;
+        uint issueDate;
         address issuedBy;
     }
 
     mapping(address => CasteData) internal mapCasteData;
 
     function setCaste(address _citizenID, CasteType _casteType) external {
-        require(uint256(mapGovernmentWorker[msg.sender].power) == 1);
+        require(uint(mapGovernmentWorker[msg.sender].power) == 1);
         mapCasteData[_citizenID] = CasteData(
             _casteType,
             block.timestamp,
@@ -1071,13 +1069,13 @@ contract uniKEY {
         returns (string memory)
     {
         require(verifyBirthCertificate(_citizenID) == true);
-        if (uint256(mapCasteData[_citizenID].casteType) == 1) {
+        if (uint(mapCasteData[_citizenID].casteType) == 1) {
             return "SC";
-        } else if (uint256(mapCasteData[_citizenID].casteType) == 2) {
+        } else if (uint(mapCasteData[_citizenID].casteType) == 2) {
             return "ST";
-        } else if (uint256(mapCasteData[_citizenID].casteType) == 3) {
+        } else if (uint(mapCasteData[_citizenID].casteType) == 3) {
             return "OBC-A";
-        } else if (uint256(mapCasteData[_citizenID].casteType) == 4) {
+        } else if (uint(mapCasteData[_citizenID].casteType) == 4) {
             return "OBC-B";
         } else {
             return "General";
@@ -1087,7 +1085,7 @@ contract uniKEY {
     function setterCaste(address _citizenID)
         external
         view
-        returns (uint256, address)
+        returns (uint, address)
     {
         return (
             mapCasteData[_citizenID].issueDate,
@@ -1099,8 +1097,8 @@ contract uniKEY {
 
     struct CriminalRecord {
         string charges;
-        uint256 fine;
-        uint256 issueDate;
+        uint fine;
+        uint issueDate;
         address issuedBy;
     }
 
@@ -1109,7 +1107,7 @@ contract uniKEY {
     function addCriminalRecord(
         address _citizenID,
         string memory _charges,
-        uint256 _fine
+        uint _fine
     ) external {
         require(mapBirthCertificate[msg.sender].verify == true);
         require(
@@ -1147,7 +1145,7 @@ contract uniKEY {
             mapCriminalRecord[_citizenID].length
         );
         for (
-            uint256 index = 0;
+            uint index = 0;
             index < mapCriminalRecord[_citizenID].length;
             index++
         ) {
@@ -1161,7 +1159,7 @@ contract uniKEY {
     struct BusinessData {
         string businessName;
         address Owner;
-        uint256 issueDate;
+        uint issueDate;
         address issuedBy;
         bool verify;
     }
@@ -1200,7 +1198,7 @@ contract uniKEY {
         returns (
             string memory,
             address,
-            uint256,
+            uint,
             address
         )
     {
